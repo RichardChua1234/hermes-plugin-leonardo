@@ -1,7 +1,8 @@
 name: leonardo
-version: 1.0.0
+version: "1.0.0"
 description: "Leonardo.AI video generation backend — Motion 2.0 text-to-video and image-to-video via the Leonardo REST API. Uses your Leonardo API credits (purchased separately from the web-app subscription). Cheapest practical route to a hosted video model: no per-vendor account beyond Leonardo, which also fronts Veo, Kling, Seedance and Wan."
 author: Richard Chua
 kind: backend
+requires_hermes: ">=0.20.2"
 requires_env:
   - LEONARDO_API_KEY

@@ -95,6 +95,26 @@ Dimensions follow Leonardo's documented table for Motion 2.0, e.g. 16:9 480p =
   `User-Agent`** (403). Hermes' own downloader handles this.
 - Costs Leonardo API credits. Nothing here meters spend for you.
 
+## Disclosure (catalog rule 13)
+
+What a user should know before installing:
+
+- **Network.** Outbound HTTPS to `cloud.leonardo.ai` (API calls) and
+  `cdn.leonardo.ai` (fetching the finished clip). No other hosts.
+- **Telemetry.** None. Nothing is reported to the plugin author or anyone else.
+- **Credentials.** Reads `LEONARDO_API_KEY` through
+  `agent.secret_scope.get_secret()`, which honours the active profile. It does
+  **not** read `.env`, `auth.json`, a vendor CLI's token file, or any other
+  credential store, and it never writes or rotates a token.
+- **Reads outside its own data.** None. The plugin never touches Hermes core
+  modules, other plugins, or user files.
+- **Shell commands.** None. HTTP is stdlib `urllib` only.
+- **Background processes.** None. Generation is submitted and polled in-process,
+  bounded at 600 s, then the call returns.
+- **Stored credentials.** None written by the plugin.
+- **Spend.** Each generation bills Leonardo API credits. The plugin reports the
+  cost the API returns but does not enforce a budget.
+
 ## Files
 
 ```

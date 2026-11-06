@@ -149,6 +149,21 @@ class LeonardoVideoGenProvider(VideoGenProvider):
     # ------------------------------------------------------------ api helpers
 
     def _api_key(self) -> str:
+        """Read the API key through Hermes's profile-aware secret scope.
+
+        Catalog rule 11: credentials come through Hermes, never from files.
+        ``agent.secret_scope.get_secret`` honours the active profile, whereas a
+        bare ``os.environ`` read can pick up another profile's key under
+        multiplexing. ``os.environ`` is kept only as a dev fallback.
+        """
+        try:
+            from agent.secret_scope import get_secret
+
+            val = get_secret("LEONARDO_API_KEY")
+            if val:
+                return str(val).strip()
+        except Exception:          # older Hermes / no scope configured
+            pass
         return (os.environ.get("LEONARDO_API_KEY") or "").strip()
 
     def _request(self, method: str, url: str, payload: Optional[dict] = None) -> dict:
