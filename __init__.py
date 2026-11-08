@@ -34,12 +34,12 @@ from __future__ import annotations
 
 import json
 import logging
-import os
 import time
 import urllib.error
 import urllib.request
 from typing import Any, Dict, List, Optional
 
+from agent.secret_scope import get_secret
 from agent.video_gen_provider import (
     VideoGenProvider,
     error_response,
@@ -152,19 +152,15 @@ class LeonardoVideoGenProvider(VideoGenProvider):
         """Read the API key through Hermes's profile-aware secret scope.
 
         Catalog rule 11: credentials come through Hermes, never from files.
-        ``agent.secret_scope.get_secret`` honours the active profile, whereas a
-        bare ``os.environ`` read can pick up another profile's key under
-        multiplexing. ``os.environ`` is kept only as a dev fallback.
-        """
-        try:
-            from agent.secret_scope import get_secret
 
-            val = get_secret("LEONARDO_API_KEY")
-            if val:
-                return str(val).strip()
-        except Exception:          # older Hermes / no scope configured
-            pass
-        return (os.environ.get("LEONARDO_API_KEY") or "").strip()
+        There is deliberately **no** ``os.environ`` fallback here.
+        ``get_secret`` already reads the environment in single-profile
+        installs, and returns empty *on purpose* when one process serves
+        several profiles. Falling back to ``os.environ`` would undo that
+        isolation: a profile with no key of its own would silently bill the
+        profile that happened to launch the process.
+        """
+        return (get_secret("LEONARDO_API_KEY") or "").strip()
 
     def _request(self, method: str, url: str, payload: Optional[dict] = None) -> dict:
         key = self._api_key()
